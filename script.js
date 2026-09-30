@@ -30,7 +30,7 @@ function populateLocations() {
 // Builds a mailto: link addressed to the location's email
 function buildClaimLink(issue, parentName, location) {
     const to = LOCATIONS[location];
-    const subject = `Item claimed: ${issue.title}`;
+    const subject = `Objet réclamé: ${issue.title}`;
 const body =
 `Bonjour,
 
@@ -128,9 +128,9 @@ async function fetchBoardItems() {
         items.forEach(issue => {
             const body = issue.body.replace(/\r\n/g, '\n');
             const [description, footer = ''] = body.split('\n\n---\n');
-            const parentName =(footer.match(/\*\*(?:Signalé par|Reported By) :\*\* (.*)/) || [])[1] || '';
-            const contact =(footer.match(/\*\*(?:Contact) :\*\* (.*)/) || [])[1] || '';
-            const location =((footer.match(/\*\*(?:Lieu|Location) :\*\* (.*)/) || [])[1] || '').trim();
+            const parentName =(footer.match(/\*\*(?:Signalé par|Reported By):\*\* (.*)/) || [])[1] || '';
+            const contact =(footer.match(/\*\*(?:Contact):\*\* (.*)/) || [])[1] || '';
+            const location =((footer.match(/\*\*(?:Lieu|Location):\*\* (.*)/) || [])[1] || '').trim();
             let imageUrl =((footer.match(/\*\*Image:\*\* (.*)/) || [])[1] || '').trim();
 
 
@@ -153,7 +153,7 @@ async function fetchBoardItems() {
                     <strong>Reported By:</strong> ${escapeHTML(parentName)}<br>
                     <strong>Contact:</strong> ${escapeHTML(contact)}
                 </div>
-                ${hasLocation ? `<a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName, location))}">Réclamer cet objet</a>` : ''}
+                ${hasLocation ? `<a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName, location))}" onClick='closeIssue()'>Réclamer cet objet</a>` : ''}
             `;
 
             // If a photo fails to load, fall back to the placeholder
@@ -168,6 +168,17 @@ async function fetchBoardItems() {
         console.error(error);
         container.innerHTML = '<p class="loading">Impossible de charger le tableau pour le moment.</p>';
     }
+}
+
+function closeIssue(){
+    setTimeout(() =>{
+        console.log('testing lol');
+    const confirmation = window.confirm('Retirer l\'objet du site web ?');
+    if (confirmation){
+        //add logic for closing issue in repo
+    } else return
+    }, 2000);
+    
 }
 
 // Handle submitting a new item directly to GitHub Issues API
@@ -202,7 +213,7 @@ try {
         }
 
         // Format the description text so our parser can easily read it later
-        const issueBody = `${description}\n\n---\n**Signalé par :** ${parentName}\n**Contact :** ${contact}\n**Lieu :** ${location}${imageLine}`;
+        const issueBody = `${description}\n\n---\n**Signalé par:** ${parentName}\n**Contact:** ${contact}\n**Lieu:** ${location}${imageLine}`;
 
         const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`, {
             method: 'POST',
