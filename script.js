@@ -128,10 +128,12 @@ async function fetchBoardItems() {
         items.forEach(issue => {
             const body = issue.body.replace(/\r\n/g, '\n');
             const [description, footer = ''] = body.split('\n\n---\n');
-            const parentName = (footer.match(/\*\*Reported By:\*\* (.*)/) || [])[1] || '';
-            const contact    = (footer.match(/\*\*Contact:\*\* (.*)/) || [])[1] || '';
-            const location   = ((footer.match(/\*\*Location:\*\* (.*)/) || [])[1] || '').trim();
-            let imageUrl     = ((footer.match(/\*\*Image:\*\* (.*)/) || [])[1] || '').trim();
+            const parentName =(footer.match(/\*\*(?:Signalé par|Reported By):\*\* (.*)/) || [])[1] || '';
+            const contact =(footer.match(/\*\*(?:Contact):\*\* (.*)/) || [])[1] || '';
+            const location =((footer.match(/\*\*(?:Lieu|Location):\*\* (.*)/) || [])[1] || '').trim();
+            let imageUrl =((footer.match(/\*\*Image:\*\* (.*)/) || [])[1] || '').trim();
+
+
 
             // Only accept images that come from this repo
             if (!imageUrl.startsWith(IMAGE_URL_PREFIX)) imageUrl = PLACEHOLDER_IMG;
