@@ -10,7 +10,7 @@ const G_TOKEN = PT1 + PT2;
 // Fetch and display active lost items directly from GitHub Issues
 async function fetchBoardItems() {
     const container = document.getElementById('itemsContainer');
-    const apiUrl = `https://github.com{REPO_OWNER}/${REPO_NAME}/issues?state=open&per_page=100`;
+    const apiUrl = `https://github.com${REPO_OWNER}/${REPO_NAME}/issues?state=open&per_page=100`;
 
     try {
         const response = await fetch(apiUrl);
