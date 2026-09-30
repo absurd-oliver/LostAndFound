@@ -37,7 +37,7 @@ async function fetchBoardItems() {
             const card = document.createElement('div');
             card.className = 'item-card';
             card.innerHTML = `
-                <h3>🔍 ${escapeHTML(issue.title)}</h3>
+                <h3>${escapeHTML(issue.title)}</h3>
                 <div class="date">Reported: ${new Date(issue.created_at).toLocaleDateString()}</div>
                 <p>${escapeHTML(description)}</p>
                 <div class="meta">
@@ -71,7 +71,7 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
     const issueBody = `${description}\n\n---\n**Reported By:** ${parentName}\n**Contact:** ${contact}`;
 
     try {
-        const response = await fetch(`https://github.com{REPO_OWNER}/${REPO_NAME}/issues`, {
+        const response = await fetch(`https://github.com${REPO_OWNER}/${REPO_NAME}/issues`, {
             method: 'POST',
             headers: {
                 'Authorization': `token ${G_TOKEN}`,
