@@ -153,7 +153,7 @@ async function fetchBoardItems() {
                     <strong>Reported By:</strong> ${escapeHTML(parentName)}<br>
                     <strong>Contact:</strong> ${escapeHTML(contact)}
                 </div>
-                ${hasLocation ? `<a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName, location))}" onClick='closeIssue()'>Réclamer cet objet</a>` : ''}
+                ${hasLocation ? `<a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName, location))}" onClick='closeIssue(event, ${issue.number})'>Réclamer cet objet</a>` : ''}
             `;
 
             // If a photo fails to load, fall back to the placeholder
@@ -170,16 +170,40 @@ async function fetchBoardItems() {
     }
 }
 
-function closeIssue(){
-    setTimeout(() =>{
-        console.log('testing lol');
-    const confirmation = window.confirm('Retirer l\'objet du site web ?');
-    if (confirmation){
-        //add logic for closing issue in repo
-    } else return
-    }, 2000);
-    
+function closeIssue(event, issueNumber) {
+    // 1. Let the mailto link fire immediately.
+    // 2. Delay the pop-up slightly so the email client can open first.
+    setTimeout(async () => {
+        const confirmation = window.confirm("Retirer l'objet du site web ?");
+        if (!confirmation) return;
+
+        try {
+            const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${issueNumber}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `token ${G_TOKEN}`,
+                    'Accept': 'application/vnd.github+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    state: 'closed',
+                    state_reason: 'completed'
+                })
+            });
+
+            if (response.ok) {
+                alert("L'objet a été retiré avec succès !");
+                fetchBoardItems(); // Refresh the board
+            } else {
+                throw new Error(`Failed to close issue (${response.status})`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Erreur lors de la suppression de l'objet.");
+        }
+    }, 1000);
 }
+
 
 // Handle submitting a new item directly to GitHub Issues API
 document.getElementById('lostItemForm').addEventListener('submit', async function(e) {
