@@ -57,9 +57,9 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
     const button = this.querySelector('button');
 
     const itemName = document.getElementById('itemName').value;
-    const [description, footer = ''] = issue.body.split('\n\n---\n');
-    const parentName = (footer.match(/\*\*Reported By:\*\* (.*)/) || [])[1] || '';
-    const contact    = (footer.match(/\*\*Contact:\*\* (.*)/) || [])[1] || '';
+    const description = document.getElementById('description').value;
+    const parentName = document.getElementById('parentName').value;
+    const contact = document.getElementById('contact').value;
 
     button.disabled = true;
     button.innerText = "Submitting...";
