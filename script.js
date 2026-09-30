@@ -322,62 +322,6 @@ function setupFilter() {
     });
 }
 
-const REFRESH_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
-const REFRESH_KEY = 'lastRefreshAt';
-
-// Refresh button: re-fetch the issues, then lock the button for 5 minutes
-function setupRefresh() {
-    const btn = document.getElementById('refreshBtn');
-    const label = btn.querySelector('.refresh-label');
-    let timer = null;
-
-    const getLast = () => {
-        try { return Number(localStorage.getItem(REFRESH_KEY)) || 0; } catch { return 0; }
-    };
-    const setLast = time => {
-        try { localStorage.setItem(REFRESH_KEY, String(time)); } catch {}
-    };
-
-    // Updates the button text; returns true while still cooling down
-    function updateCooldown() {
-        const remaining = getLast() + REFRESH_COOLDOWN_MS - Date.now();
-        if (remaining <= 0) {
-            btn.disabled = false;
-            label.textContent = 'Refresh';
-            return false;
-        }
-        const secs = Math.ceil(remaining / 1000);
-        btn.disabled = true;
-        label.textContent = `Refresh (${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')})`;
-        return true;
-    }
-
-    function startCooldown() {
-        clearInterval(timer);
-        if (!updateCooldown()) return;
-        timer = setInterval(() => {
-            if (!updateCooldown()) clearInterval(timer);
-        }, 1000);
-    }
-
-    btn.addEventListener('click', async () => {
-        if (getLast() + REFRESH_COOLDOWN_MS > Date.now()) return;
-
-        setLast(Date.now());
-        btn.disabled = true;
-        btn.classList.add('spinning');
-        label.textContent = 'Refreshing...';
-
-        await fetchBoardItems(); // handles its own errors
-
-        btn.classList.remove('spinning');
-        startCooldown();
-    });
-
-    // If a cooldown is still running from before a page reload, resume it
-    startCooldown();
-}
-
 function escapeHTML(str) {
     return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
 }
@@ -385,6 +329,5 @@ function escapeHTML(str) {
 document.addEventListener('DOMContentLoaded', () => {
     populateLocations();
     setupFilter();
-    setupRefresh();
     fetchBoardItems();
 });
