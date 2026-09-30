@@ -1,0 +1,46 @@
+name: Save Formspree Submission
+
+on:
+  repository_dispatch:
+    types: [formspree_submission]
+
+permissions:
+  contents: write
+
+jobs:
+  append_data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo Code
+        uses: actions/checkout@v4
+
+      - name: Parse Data and Append to JSON
+        run: |
+          # Read incoming payload data from Formspree
+          ITEM_NAME=$(echo '${{ github.event.client_payload.itemName }}')
+          DESC=$(echo '${{ github.event.client_payload.description }}')
+          PARENT=$(echo '${{ github.event.client_payload.parentName }}')
+          CONTACT=$(echo '${{ github.event.client_payload.contact }}')
+          DATE_NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Create a temporary single-line valid JSON object safely using jq
+          jq -n \
+            --arg name "$ITEM_NAME" \
+            --arg desc "$DESC" \
+            --arg parent "$PARENT" \
+            --arg contact "$CONTACT" \
+            --arg date "$DATE_NOW" \
+            '{itemName: $name, description: $desc, parentName: $parent, contact: $contact, dateSubmit: $date}' > new_item.json
+
+          # Append the item object to the existing array in data.json
+          jq '. += [input]' data.json new_item.json > temp.json
+          mv temp.json data.json
+          rm new_item.json
+
+      - name: Commit and Push to Repository
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add data.json
+          git commit -m "Automated: Added new lost item report"
+          git push origin main
