@@ -10,7 +10,7 @@ const G_TOKEN = PT1 + PT2;
 // Fetch and display active lost items directly from GitHub Issues
 async function fetchBoardItems() {
     const container = document.getElementById('itemsContainer');
-    const apiUrl = `https://api.github.com/${REPO_OWNER}/${REPO_NAME}/issues?state=open&per_page=100`;
+    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues?state=open&per_page=100`;
 
     try {
         const response = await fetch(apiUrl);
@@ -60,9 +60,9 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
     const button = this.querySelector('button');
 
     const itemName = document.getElementById('itemName').value;
-    const description = document.getElementById('description').value;
-    const parentName = document.getElementById('parentName').value;
-    const contact = document.getElementById('contact').value;
+    const [description, footer = ''] = issue.body.split('\n\n---\n');
+    const parentName = (footer.match(/\*\*Reported By:\*\* (.*)/) || [])[1] || '';
+    const contact    = (footer.match(/\*\*Contact:\*\* (.*)/) || [])[1] || '';
 
     button.disabled = true;
     button.innerText = "Submitting...";
@@ -71,7 +71,7 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
     const issueBody = `${description}\n\n---\n**Reported By:** ${parentName}\n**Contact:** ${contact}`;
 
     try {
-        const response = await fetch(`https://api.github.com/${REPO_OWNER}/${REPO_NAME}/issues`, {
+        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`, {
             method: 'POST',
             headers: {
                 'Authorization': `token ${G_TOKEN}`,
