@@ -124,10 +124,6 @@ async function fetchBoardItems() {
                     <strong>Reported By:</strong> ${escapeHTML(parentName)}<br>
                     <strong>Contact:</strong> ${escapeHTML(contact)}
                 </div>
-                <div class="meta">
-                    <strong>Reported By:</strong> ${escapeHTML(parentName)}<br>
-                    <strong>Contact:</strong> ${escapeHTML(contact)}
-                </div>
                 <a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName))}">Claim this item</a>
             `;
 
@@ -186,7 +182,7 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
         });
 
         if (response.ok) {
-            status.textContent = "Success! Your item has been added to the board.";
+            status.textContent = "Success! Your item will be added to the board within a few minutes.";
             status.className = "success";
             this.reset();
             // Instantly refresh the board to show the new item
