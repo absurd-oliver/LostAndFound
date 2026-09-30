@@ -164,3 +164,11 @@ textarea {
     background: var(--bg);
     display: block;
 }
+
+.claim-btn {
+    display: block;
+    box-sizing: border-box;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 1rem;
+}

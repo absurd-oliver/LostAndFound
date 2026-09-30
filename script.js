@@ -7,6 +7,26 @@ const PT1 = "ghp_uDCQTjHtyOmwqIY";
 const PT2 = "ipDlCxmk5NuqGNg0cYo54";
 const G_TOKEN = PT1 + PT2;
 
+const CLAIM_EMAIL = 'you@example.com'; // <-- change this
+
+function buildClaimLink(issue, parentName) {
+    const subject = `Item claimed: ${issue.title}`;
+    const body =
+`Hi,
+
+I'd like to claim this item:
+
+Item: ${issue.title}
+Reported by: ${parentName}
+Listing: ${issue.html_url}
+
+My name:
+My contact info:
+
+Thanks!`;
+    return `mailto:${CLAIM_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 // Shown when an item has no photo
 const PLACEHOLDER_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 180">' +
@@ -104,6 +124,11 @@ async function fetchBoardItems() {
                     <strong>Reported By:</strong> ${escapeHTML(parentName)}<br>
                     <strong>Contact:</strong> ${escapeHTML(contact)}
                 </div>
+                <div class="meta">
+                    <strong>Reported By:</strong> ${escapeHTML(parentName)}<br>
+                    <strong>Contact:</strong> ${escapeHTML(contact)}
+                </div>
+                <a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName))}">Claim this item</a>
             `;
 
             // If a photo fails to load, fall back to the placeholder
