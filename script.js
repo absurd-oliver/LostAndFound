@@ -28,11 +28,9 @@ async function fetchBoardItems() {
         }
 
         items.forEach(issue => {
-            // Parse the data out of the structured issue description block
-            const lines = issue.body.split('\n');
-            const description = lines[0] || '';
-            const parentName = (lines[2] || '').replace('**Reported By:** ', '');
-            const contact = (lines[3] || '').replace('**Contact:** ', '');
+            const [description, footer = ''] = issue.body.split('\n\n---\n');
+            const parentName = (footer.match(/\*\*Reported By:\*\* (.*)/) || [])[1] || '';
+            const contact    = (footer.match(/\*\*Contact:\*\* (.*)/) || [])[1] || '';
 
             const card = document.createElement('div');
             card.className = 'item-card';
@@ -47,7 +45,6 @@ async function fetchBoardItems() {
             `;
             container.appendChild(card);
         });
-
     } catch (error) {
         container.innerHTML = '<p class="loading">Unable to load the board right now.</p>';
     }
