@@ -7,9 +7,29 @@ const PT1 = "ghp_uDCQTjHtyOmwqIY";
 const PT2 = "ipDlCxmk5NuqGNg0cYo54";
 const G_TOKEN = PT1 + PT2;
 
-const CLAIM_EMAIL = 'you@example.com'; // <-- change this
+// Location -> email that receives claims for items found there (placeholders for now)
+const LOCATIONS = {
+    'Fleur soleil':  'fleursoleil@example.com',
+    'Ribambelle':    'ribambelle@example.com',
+    'Trois saisons': 'troissaisons@example.com',
+    'Tournesol':     'tournesol@example.com',
+    'Odysse':        'odysse@example.com'
+};
 
-function buildClaimLink(issue, parentName) {
+// Fill the <select> from LOCATIONS
+function populateLocations() {
+    const select = document.getElementById('location');
+    Object.keys(LOCATIONS).forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+    });
+}
+
+// Builds a mailto: link addressed to the location's email
+function buildClaimLink(issue, parentName, location) {
+    const to = LOCATIONS[location];
     const subject = `Item claimed: ${issue.title}`;
     const body =
 `Hi,
@@ -17,6 +37,7 @@ function buildClaimLink(issue, parentName) {
 I'd like to claim this item:
 
 Item: ${issue.title}
+Found at: ${location}
 Reported by: ${parentName}
 Listing: ${issue.html_url}
 
@@ -24,7 +45,7 @@ My name:
 My contact info:
 
 Thanks!`;
-    return `mailto:${CLAIM_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 // Shown when an item has no photo
@@ -108,15 +129,20 @@ async function fetchBoardItems() {
             const [description, footer = ''] = body.split('\n\n---\n');
             const parentName = (footer.match(/\*\*Reported By:\*\* (.*)/) || [])[1] || '';
             const contact    = (footer.match(/\*\*Contact:\*\* (.*)/) || [])[1] || '';
+            const location   = ((footer.match(/\*\*Location:\*\* (.*)/) || [])[1] || '').trim();
             let imageUrl     = ((footer.match(/\*\*Image:\*\* (.*)/) || [])[1] || '').trim();
 
             // Only accept images that come from this repo
             if (!imageUrl.startsWith(IMAGE_URL_PREFIX)) imageUrl = PLACEHOLDER_IMG;
 
+            // Only show a claim button if the location is one we know an email for
+            const hasLocation = Object.prototype.hasOwnProperty.call(LOCATIONS, location);
+
             const card = document.createElement('div');
             card.className = 'item-card';
             card.innerHTML = `
                 <img class="item-image" src="${escapeHTML(imageUrl)}" alt="${escapeHTML(issue.title)}" loading="lazy">
+                ${hasLocation ? `<span class="location-tag">${escapeHTML(location)}</span>` : ''}
                 <h3>${escapeHTML(issue.title)}</h3>
                 <div class="date">Reported: ${new Date(issue.created_at).toLocaleDateString()}</div>
                 <p>${escapeHTML(description)}</p>
@@ -124,7 +150,7 @@ async function fetchBoardItems() {
                     <strong>Reported By:</strong> ${escapeHTML(parentName)}<br>
                     <strong>Contact:</strong> ${escapeHTML(contact)}
                 </div>
-                <a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName))}">Claim this item</a>
+                ${hasLocation ? `<a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName, location))}">Claim this item</a>` : ''}
             `;
 
             // If a photo fails to load, fall back to the placeholder
@@ -151,7 +177,14 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
     const description = document.getElementById('description').value;
     const parentName = document.getElementById('parentName').value;
     const contact = document.getElementById('contact').value;
+    const location = document.getElementById('location').value;
     const imageFile = document.getElementById('image').files[0];
+
+    if (!Object.prototype.hasOwnProperty.call(LOCATIONS, location)) {
+        status.textContent = "Please choose where the item was found.";
+        status.className = "error";
+        return;
+    }
 
     button.disabled = true;
     button.innerText = "Submitting...";
@@ -166,7 +199,7 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
         }
 
         // Format the description text so our parser can easily read it later
-        const issueBody = `${description}\n\n---\n**Reported By:** ${parentName}\n**Contact:** ${contact}${imageLine}`;
+        const issueBody = `${description}\n\n---\n**Reported By:** ${parentName}\n**Contact:** ${contact}\n**Location:** ${location}${imageLine}`;
 
         const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`, {
             method: 'POST',
@@ -182,7 +215,7 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
         });
 
         if (response.ok) {
-            status.textContent = "Success! Your item will be added to the board within a few minutes.";
+            status.textContent = "Success! Your item has been added to the board.";
             status.className = "success";
             this.reset();
             // Instantly refresh the board to show the new item
@@ -205,4 +238,7 @@ function escapeHTML(str) {
     return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
 }
 
-document.addEventListener('DOMContentLoaded', fetchBoardItems);
+document.addEventListener('DOMContentLoaded', () => {
+    populateLocations();
+    fetchBoardItems();
+});

@@ -73,7 +73,7 @@ label {
     margin-bottom: 0.5rem;
 }
 
-input, textarea {
+input, textarea, select {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border);
@@ -171,4 +171,15 @@ textarea {
     text-align: center;
     text-decoration: none;
     margin-top: 1rem;
+}
+
+.location-tag {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: #eef2ff;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    margin-bottom: 0.5rem;
 }
