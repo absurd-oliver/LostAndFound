@@ -131,7 +131,7 @@ async function fetchBoardItems() {
             const parentName =(footer.match(/\*\*(?:Signalé par|Reported By) :\*\* (.*)/) || [])[1] || '';
             const contact =(footer.match(/\*\*(?:Contact) :\*\* (.*)/) || [])[1] || '';
             const location =((footer.match(/\*\*(?:Lieu|Location) :\*\* (.*)/) || [])[1] || '').trim();
-            let imageUrl =((footer.match(/\*\*Image :\*\* (.*)/) || [])[1] || '').trim();
+            let imageUrl =((footer.match(/\*\*Image:\*\* (.*)/) || [])[1] || '').trim();
 
 
 
