@@ -13,7 +13,7 @@ const LOCATIONS = {
     'Ribambelle':    'ribambelle@example.com',
     'Trois saisons': 'troissaisons@example.com',
     'Tournesol':     'tournesol@example.com',
-    'Odysse':        'odysse@example.com'
+    'Odyssee':        'odysse@example.com'
 };
 
 // Fill the <select> from LOCATIONS
@@ -31,20 +31,21 @@ function populateLocations() {
 function buildClaimLink(issue, parentName, location) {
     const to = LOCATIONS[location];
     const subject = `Item claimed: ${issue.title}`;
-    const body =
-`Hi,
+const body =
+`Bonjour,
 
-I'd like to claim this item:
+Je souhaite réclamer cet objet :
 
-Item: ${issue.title}
-Found at: ${location}
-Reported by: ${parentName}
-Listing: ${issue.html_url}
+Objet : ${issue.title}
+Trouvé à : ${location}
+Signalé par : ${parentName}
+Annonce : ${issue.html_url}
 
-My name:
-My contact info:
+Mon nom :
+Mes coordonnées :
 
-Thanks!`;
+Merci !`;
+
     return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
@@ -120,7 +121,7 @@ async function fetchBoardItems() {
         const items = issues.filter(issue => !issue.pull_request && issue.body && issue.body.includes("---"));
 
         if (items.length === 0) {
-            container.innerHTML = '<p class="loading">No lost items reported yet! Everyone has their gear.</p>';
+            container.innerHTML = '<p class="loading">Aucun objet perdu n\'a encore été signalé ! Tout le monde a ses affaires.</p>';
             return;
         }
 
@@ -150,7 +151,7 @@ async function fetchBoardItems() {
                     <strong>Reported By:</strong> ${escapeHTML(parentName)}<br>
                     <strong>Contact:</strong> ${escapeHTML(contact)}
                 </div>
-                ${hasLocation ? `<a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName, location))}">Claim this item</a>` : ''}
+                ${hasLocation ? `<a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName, location))}">Réclamer cet objet</a>` : ''}
             `;
 
             // If a photo fails to load, fall back to the placeholder
@@ -163,7 +164,7 @@ async function fetchBoardItems() {
         });
     } catch (error) {
         console.error(error);
-        container.innerHTML = '<p class="loading">Unable to load the board right now.</p>';
+        container.innerHTML = '<p class="loading">Impossible de charger le tableau pour le moment.</p>';
     }
 }
 
@@ -180,8 +181,8 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
     const location = document.getElementById('location').value;
     const imageFile = document.getElementById('image').files[0];
 
-    if (!Object.prototype.hasOwnProperty.call(LOCATIONS, location)) {
-        status.textContent = "Please choose where the item was found.";
+if (!Object.prototype.hasOwnProperty.call(LOCATIONS, location)) {
+        status.textContent = "Veuillez choisir le lieu où l'objet a été trouvé.";
         status.className = "error";
         return;
     }
@@ -189,17 +190,17 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
     button.disabled = true;
     button.innerText = "Submitting...";
 
-    try {
+try {
         let imageLine = '';
         if (imageFile) {
-            button.innerText = "Uploading image...";
+            button.innerText = "Téléchargement de l'image...";
             const imageUrl = await uploadImage(imageFile);
             imageLine = `\n**Image:** ${imageUrl}`;
-            button.innerText = "Submitting...";
+            button.innerText = "Envoi en cours...";
         }
 
         // Format the description text so our parser can easily read it later
-        const issueBody = `${description}\n\n---\n**Reported By:** ${parentName}\n**Contact:** ${contact}\n**Location:** ${location}${imageLine}`;
+        const issueBody = `${description}\n\n---\n**Signalé par :** ${parentName}\n**Contact :** ${contact}\n**Lieu :** ${location}${imageLine}`;
 
         const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`, {
             method: 'POST',
@@ -215,7 +216,7 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
         });
 
         if (response.ok) {
-            status.textContent = "Success! Your item has been added to the board.";
+            status.textContent = "Succès ! Votre objet a bien été ajouté au tableau.";
             status.className = "success";
             this.reset();
             // Instantly refresh the board to show the new item
@@ -225,11 +226,11 @@ document.getElementById('lostItemForm').addEventListener('submit', async functio
         }
     } catch (err) {
         console.error(err);
-        status.textContent = "Error submitting item. Please check your setup settings.";
+        status.textContent = "Erreur lors de l'envoi de l'objet. Veuillez vérifier vos paramètres de configuration.";
         status.className = "error";
     } finally {
         button.disabled = false;
-        button.innerText = "Submit Item";
+        button.innerText = "Soumettre";
         status.classList.remove('hidden');
     }
 });
@@ -243,7 +244,7 @@ function renderBoard() {
     container.innerHTML = '';
 
     if (allItems.length === 0) {
-        container.innerHTML = '<p class="loading">No lost items reported yet! Everyone has their gear.</p>';
+        container.innerHTML = '<p class="loading">Aucun objet perdu n\'a encore été signalé ! Tout le monde a ses affaires.</p>';
         return;
     }
 
@@ -252,7 +253,7 @@ function renderBoard() {
         : allItems;
 
     if (visible.length === 0) {
-        container.innerHTML = `<p class="loading">No items found at ${escapeHTML(currentFilter)}.</p>`;
+        container.innerHTML = `<p class="loading">Aucun objet trouvé à : ${escapeHTML(currentFilter)}.</p>`;
         return;
     }
 
@@ -269,7 +270,7 @@ function renderBoard() {
                 <strong>Reported By:</strong> ${escapeHTML(parentName)}<br>
                 <strong>Contact:</strong> ${escapeHTML(contact)}
             </div>
-            ${hasLocation ? `<a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName, location))}">Claim this item</a>` : ''}
+            ${hasLocation ? `<a class="btn claim-btn" href="${escapeHTML(buildClaimLink(issue, parentName, location))}">Réclamer cet objet</a>` : ''}
         `;
 
         // If a photo fails to load, fall back to the placeholder
