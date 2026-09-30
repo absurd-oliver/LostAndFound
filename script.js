@@ -13,7 +13,7 @@ const LOCATIONS = {
     'Ribambelle':    'ribambelle@example.com',
     'Trois saisons': 'troissaisons@example.com',
     'Tournesol':     'tournesol@example.com',
-    'Odyssee':        'odysse@example.com'
+    'Odyssee':        'odyssee@example.com'
 };
 
 // Fill the <select> from LOCATIONS
@@ -128,10 +128,10 @@ async function fetchBoardItems() {
         items.forEach(issue => {
             const body = issue.body.replace(/\r\n/g, '\n');
             const [description, footer = ''] = body.split('\n\n---\n');
-            const parentName =(footer.match(/\*\*(?:Signalé par|Reported By):\*\* (.*)/) || [])[1] || '';
-            const contact =(footer.match(/\*\*(?:Contact):\*\* (.*)/) || [])[1] || '';
-            const location =((footer.match(/\*\*(?:Lieu|Location):\*\* (.*)/) || [])[1] || '').trim();
-            let imageUrl =((footer.match(/\*\*Image:\*\* (.*)/) || [])[1] || '').trim();
+            const parentName =(footer.match(/\*\*(?:Signalé par|Reported By) :\*\* (.*)/) || [])[1] || '';
+            const contact =(footer.match(/\*\*(?:Contact) :\*\* (.*)/) || [])[1] || '';
+            const location =((footer.match(/\*\*(?:Lieu|Location) :\*\* (.*)/) || [])[1] || '').trim();
+            let imageUrl =((footer.match(/\*\*Image :\*\* (.*)/) || [])[1] || '').trim();
 
 
 
