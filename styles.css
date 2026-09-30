@@ -154,3 +154,13 @@ textarea {
 #formStatus.error { background-color: #fee2e2; color: #991b1b; }
 .hidden { display: none; }
 .loading { color: var(--text-muted); font-style: italic; }
+
+.item-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    background: var(--bg);
+    display: block;
+}
