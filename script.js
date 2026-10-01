@@ -1,4 +1,4 @@
-// tolololol
+// trolololol
 const REPO_OWNER = 'absurd-oliver';
 const REPO_NAME = 'LostAndFound';
 
