@@ -320,52 +320,11 @@ function renderBoard() {
     });
 }
 
-// Build the filter menu and wire up open/close behaviour
-function setupFilter() {
-    const btn = document.getElementById('filterBtn');
-    const menu = document.getElementById('filterMenu');
-    const label = btn.querySelector('.filter-label');
-
-    const openMenu = () => { menu.classList.remove('hidden'); btn.setAttribute('aria-expanded', 'true'); };
-    const closeMenu = () => { menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); };
-
-    const options = [['', 'All locations'], ...Object.keys(LOCATIONS).map(n => [n, n])];
-
-    options.forEach(([value, text], i) => {
-        const opt = document.createElement('button');
-        opt.type = 'button';
-        opt.className = 'filter-option' + (i === 0 ? ' active' : '');
-        opt.textContent = text;
-        opt.setAttribute('role', 'menuitem');
-        opt.addEventListener('click', () => {
-            currentFilter = value;
-            menu.querySelectorAll('.filter-option').forEach(o => o.classList.toggle('active', o === opt));
-            label.textContent = value ? `Filter: ${value}` : 'Filter';
-            btn.classList.toggle('active', Boolean(value));
-            closeMenu();
-            renderBoard();
-        });
-        menu.appendChild(opt);
-    });
-
-    btn.addEventListener('click', e => {
-        e.stopPropagation();
-        menu.classList.contains('hidden') ? openMenu() : closeMenu();
-    });
-    document.addEventListener('click', e => {
-        if (!menu.contains(e.target)) closeMenu();
-    });
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeMenu();
-    });
-}
-
 function escapeHTML(str) {
     return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     populateLocations();
-    setupFilter();
     fetchBoardItems();
 });
